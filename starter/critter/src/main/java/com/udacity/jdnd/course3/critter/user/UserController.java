@@ -1,14 +1,22 @@
 package com.udacity.jdnd.course3.critter.user;
 
-import org.springframework.web.bind.annotation.*;
-
+import com.udacity.jdnd.course3.critter.domain.service.CustomerService;
+import com.udacity.jdnd.course3.critter.domain.service.EmployeeService;
+import java.text.ParseException;
 import java.time.DayOfWeek;
 import java.util.List;
 import java.util.Set;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Handles web requests related to Users.
- *
+ * <p>
  * Includes requests for both customers and employees. Splitting this into separate user and customer controllers
  * would be fine too, though that is not part of the required scope for this class.
  */
@@ -16,39 +24,50 @@ import java.util.Set;
 @RequestMapping("/user")
 public class UserController {
 
-    @PostMapping("/customer")
-    public CustomerDTO saveCustomer(@RequestBody CustomerDTO customerDTO){
-        throw new UnsupportedOperationException();
-    }
+  private final CustomerService customerService;
 
-    @GetMapping("/customer")
-    public List<CustomerDTO> getAllCustomers(){
-        throw new UnsupportedOperationException();
-    }
+  private final EmployeeService employeeService;
 
-    @GetMapping("/customer/pet/{petId}")
-    public CustomerDTO getOwnerByPet(@PathVariable long petId){
-        throw new UnsupportedOperationException();
-    }
+  public UserController(CustomerService customerService, EmployeeService employeeService) {
+    this.customerService = customerService;
+    this.employeeService = employeeService;
+  }
 
-    @PostMapping("/employee")
-    public EmployeeDTO saveEmployee(@RequestBody EmployeeDTO employeeDTO) {
-        throw new UnsupportedOperationException();
-    }
 
-    @PostMapping("/employee/{employeeId}")
-    public EmployeeDTO getEmployee(@PathVariable long employeeId) {
-        throw new UnsupportedOperationException();
-    }
+  @PostMapping("/customer")
+  public CustomerDTO saveCustomer(@RequestBody CustomerDTO customerDTO) {
+    return customerService.saveCustomer(customerDTO);
+  }
 
-    @PutMapping("/employee/{employeeId}")
-    public void setAvailability(@RequestBody Set<DayOfWeek> daysAvailable, @PathVariable long employeeId) {
-        throw new UnsupportedOperationException();
-    }
+  @GetMapping("/customer")
+  public List<CustomerDTO> getAllCustomers() {
+    return customerService.getAllCustomers();
+  }
 
-    @GetMapping("/employee/availability")
-    public List<EmployeeDTO> findEmployeesForService(@RequestBody EmployeeRequestDTO employeeDTO) {
-        throw new UnsupportedOperationException();
-    }
+  @GetMapping("/customer/pet/{petId}")
+  public CustomerDTO getOwnerByPet(@PathVariable long petId) {
+    return customerService.getCustomerByPet(petId);
+  }
+
+  @PostMapping("/employee")
+  public EmployeeDTO saveEmployee(@RequestBody EmployeeDTO employeeDTO) throws ParseException {
+    return employeeService.saveEmployee(employeeDTO);
+  }
+
+  @PostMapping("/employee/{employeeId}")
+  public EmployeeDTO getEmployee(@PathVariable long employeeId) {
+    return employeeService.getEmployee(employeeId);
+  }
+
+  @PutMapping("/employee/{employeeId}")
+  public void setAvailability(@RequestBody Set<DayOfWeek> daysAvailable,
+                              @PathVariable long employeeId) {
+    employeeService.setAvailability(daysAvailable, employeeId);
+  }
+
+  @GetMapping("/employee/availability")
+  public List<EmployeeDTO> findEmployeesForService(@RequestBody EmployeeRequestDTO employeeDTO) {
+    return employeeService.findEmployeesForService(employeeDTO.getSkills(), employeeDTO.getDate());
+  }
 
 }
